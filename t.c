@@ -1,6 +1,0 @@
-#include <stdio.h>
-
-int main() {
-	printf("%d\n", (0x3a & 0xFE) ^ 0x38);
-	printf("%d\n", (0x3a & 0xF8) ^ 0x30);
-}

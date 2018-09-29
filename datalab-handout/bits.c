@@ -225,11 +225,15 @@ int leastBitPos(int x) {
  *   Rating: 2
  */
 int fitsBits(int x, int n) {
-  return !(x & ~((1 << (n-1)) - 1));
+  int shifts = ~n + 33;
+  // n = 0100000
+  // ~n= 1011111
+  // 33= 0100001
+  return !(x ^ ((x << shifts) >> shifts));
 }
 /* 
  * divpwr2 - Compute x/(2^n), for 0 <= n <= 30
- *  Round toward zero
+ *  Round toward zero 
  *   Examples: divpwr2(15,1) = 7, divpwr2(-33,4) = -2
  *   Legal ops: ! ~ & ^ | + << >>
  *   Max ops: 15
@@ -262,7 +266,7 @@ int isLessOrEqual(int x, int y) {
   int diff = y + (~x + 1);
   int xSign = (x >> 31) & 1;
   int ySign = (y >> 31) & 1;
-  return ( !ySign & xSign ) | ( !(ySign & !xSign) & !(1 & (diff >> 31)) );
+  return ( (!ySign) & xSign ) | ( !( ySign & (!xSign) ) & !(1 & (diff >> 31)) );
 }
 /* 
  * logicalShift - shift x to the right by n, using a logical shift
@@ -290,7 +294,7 @@ int logicalShift(int x, int n) {
 int multFiveEighths(int x) {
   x = (x << 2) + x;
   int sign = (x >> 31) & 1;
-  return (x + (sign & 7)) >> 3; 
+  return (x + (sign << 3) + (~sign + 1)) >> 3; 
 }
 /*
  * bitCount - returns count of number of 1's in word
@@ -310,9 +314,12 @@ int bitCount(int x) {
  *   Rating: 4 
  */
 int bang(int x) {
-  int lsbMask = x & (~x + 1);
-  int fullMask = 0xff;
-  return 2;
+  x = x | (x >> 16);
+  x = x | (x >> 8);
+  x = x | (x >> 4);
+  x = x | (x >> 2);
+  x = x | (x >> 1);
+  return (x & 1) ^ 1;
 }
 /*
  * bitParity - returns 1 if x contains an odd number of 0's
@@ -342,7 +349,31 @@ int bitParity(int x) {
  *   Rating: 4
  */
 int float_f2i(unsigned uf) {
-  return 2;
+  int sign = (uf >> 31) & 1;
+  int exp = (uf >> 23) & 0xFF;
+  int E = exp + ~127 + 1;
+  int frac = uf + (sign << 31) + ~(exp << 23) + 1;
+  // when exp == 0
+  if (!exp) {
+    return 0;
+  }
+  // when exp == 255
+  if (!(exp ^ 255)) {
+    return 0x80000000u;
+  }
+  //when E > 33
+  if ((34 + ~E) >> 31) {
+    return 0x80000000u;
+  }
+  // when E < 0
+  if ((E >> 31)) {
+    return 0;
+  }
+  int abs = ((1 << 23) + frac) >> 23;
+  if (sign) {
+    return ~abs + 1;
+  }
+  return abs;
 }
 /* 
  * float_twice - Return bit-level equivalent of expression 2*f for

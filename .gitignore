@@ -8,3 +8,8 @@
 ############
 *.tar
 *.zip
+
+# Custom Test #
+###############
+test.c
+a.out
