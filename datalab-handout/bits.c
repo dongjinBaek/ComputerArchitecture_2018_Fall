@@ -319,9 +319,9 @@ int bitCount(int x) {
   ret = ret + (mask & (x >> 6));
   ret = ret + (mask & (x >> 7));
 
-  ret = ret + ret >> 16;
-  ret = ret + ret >> 8;
-  ret = ret & 0xFF;
+  ret = ret + (ret >> 16);
+  ret = ret + (ret >> 8);
+  ret = ret & 63;
   return ret;
 }
 /* 
