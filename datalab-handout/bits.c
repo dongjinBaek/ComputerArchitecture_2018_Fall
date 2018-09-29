@@ -304,7 +304,25 @@ int multFiveEighths(int x) {
  *   Rating: 4
  */
 int bitCount(int x) {
-  return 2;
+  int mask = 1;
+  int ret = 0;
+
+  mask = mask | (mask << 8);
+  mask = mask | (mask << 16);
+
+  ret = ret + (mask & (x >> 0));
+  ret = ret + (mask & (x >> 1));
+  ret = ret + (mask & (x >> 2));
+  ret = ret + (mask & (x >> 3));
+  ret = ret + (mask & (x >> 4));
+  ret = ret + (mask & (x >> 5));
+  ret = ret + (mask & (x >> 6));
+  ret = ret + (mask & (x >> 7));
+
+  ret = ret + ret >> 16;
+  ret = ret + ret >> 8;
+  ret = ret & 0xFF;
+  return ret;
 }
 /* 
  * bang - Compute !x without using !
@@ -389,28 +407,20 @@ int float_f2i(unsigned uf) {
 unsigned float_twice(unsigned uf) {
   int sign = (uf >> 31) & 1;
   int exp = (uf >> 23) & 0xFF;
-  int E = exp + ~127 + 1;
   int frac = uf + (sign << 31) + ~(exp << 23) + 1;
   int abs = ((1 << 23) + frac) >> 23;
   // when exp == 0
   if (!exp) {
-    return 0;
+    if (frac) {
+      return (sign << 31) | (exp << 23) | frac << 1;
+    }
+    if (!frac) {
+      return uf;
+    }
   }
   // when exp == 255
   if (!(exp ^ 255)) {
-    return 0x80000000u;
+    return uf;
   }
-  E = E + 1;
-  //when E > 33
-  if ((34 + ~E) >> 31) {
-    return 0x80000000u;
-  }
-  // when E < 0
-  if ((E >> 31)) {
-    return 0;
-  }
-  if (sign) {
-    return ~abs + 1;
-  }
-  return abs;
+  return (sign << 31) + ((exp + 1) << 23) + frac; 
 }
