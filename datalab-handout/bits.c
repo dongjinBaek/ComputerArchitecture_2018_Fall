@@ -201,8 +201,8 @@ int bitXor(int x, int y) {
  *   Rating: 2
  */
 int allEvenBits(int x) {
-  x = x & (x >> 8) & (x >> 16) & (x >> 24) & 0b01010101;
-  return !(x ^ 0b01010101);
+  int mask = x & (x >> 8) & (x >> 16) & (x >> 24) & 0x55;
+  return !(mask ^ 0x55);
 }
 /* 
  * leastBitPos - return a mask that marks the position of the
@@ -292,9 +292,9 @@ int logicalShift(int x, int n) {
  *   Rating: 3
  */
 int multFiveEighths(int x) {
-  x = (x << 2) + x;
-  int sign = (x >> 31) & 1;
-  return (x + (sign << 3) + (~sign + 1)) >> 3; 
+  int fiveX = (x << 2) + x;
+  int sign = (fiveX >> 31) & 1;
+  return (fiveX + (sign << 3) + (~sign + 1)) >> 3; 
 }
 /*
  * bitCount - returns count of number of 1's in word
@@ -353,6 +353,7 @@ int float_f2i(unsigned uf) {
   int exp = (uf >> 23) & 0xFF;
   int E = exp + ~127 + 1;
   int frac = uf + (sign << 31) + ~(exp << 23) + 1;
+  int abs = ((1 << 23) + frac) >> 23;
   // when exp == 0
   if (!exp) {
     return 0;
@@ -369,7 +370,6 @@ int float_f2i(unsigned uf) {
   if ((E >> 31)) {
     return 0;
   }
-  int abs = ((1 << 23) + frac) >> 23;
   if (sign) {
     return ~abs + 1;
   }
@@ -387,5 +387,30 @@ int float_f2i(unsigned uf) {
  *   Rating: 4
  */
 unsigned float_twice(unsigned uf) {
-  return 2;
+  int sign = (uf >> 31) & 1;
+  int exp = (uf >> 23) & 0xFF;
+  int E = exp + ~127 + 1;
+  int frac = uf + (sign << 31) + ~(exp << 23) + 1;
+  int abs = ((1 << 23) + frac) >> 23;
+  // when exp == 0
+  if (!exp) {
+    return 0;
+  }
+  // when exp == 255
+  if (!(exp ^ 255)) {
+    return 0x80000000u;
+  }
+  E = E + 1;
+  //when E > 33
+  if ((34 + ~E) >> 31) {
+    return 0x80000000u;
+  }
+  // when E < 0
+  if ((E >> 31)) {
+    return 0;
+  }
+  if (sign) {
+    return ~abs + 1;
+  }
+  return abs;
 }
