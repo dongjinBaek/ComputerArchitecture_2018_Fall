@@ -304,6 +304,7 @@ int multFiveEighths(int x) {
  *   Rating: 4
  */
 int bitCount(int x) {
+  // cut word to 4 parts with 8bit, count, and add
   int mask = 1;
   int ret = 0;
 
@@ -371,7 +372,7 @@ int float_f2i(unsigned uf) {
   int exp = (uf >> 23) & 0xFF;
   int E = exp + ~127 + 1;
   int frac = uf + (sign << 31) + ~(exp << 23) + 1;
-  int abs = ((1 << 23) + frac) >> 23;
+  int abs = ((1 << 23) + frac) >> (23 + ~E + 1);
   // when exp == 0
   if (!exp) {
     return 0;
@@ -408,11 +409,11 @@ unsigned float_twice(unsigned uf) {
   int sign = (uf >> 31) & 1;
   int exp = (uf >> 23) & 0xFF;
   int frac = uf + (sign << 31) + ~(exp << 23) + 1;
-  int abs = ((1 << 23) + frac) >> 23;
   // when exp == 0
   if (!exp) {
     if (frac) {
-      return (sign << 31) | (exp << 23) | frac << 1;
+	  // also works when overflow occurred when frac << 1
+      return (sign << 31) | (exp << 23) | (frac << 1);
     }
     if (!frac) {
       return uf;
