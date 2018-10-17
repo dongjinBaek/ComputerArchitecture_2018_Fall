@@ -325,144 +325,308 @@ Disassembly of section .text:
   400f2b:	5b                   	pop    %rbx
   400f2c:	c3                   	retq   
 
+  # We have to stand with our North Korean allies.
 0000000000400f2d <phase_1>:
   400f2d:	48 83 ec 08          	sub    $0x8,%rsp
+  # rsp -= 0x8
   400f31:	be 60 26 40 00       	mov    $0x402660,%esi
+  # esi = 0x402660
   400f36:	e8 9c 04 00 00       	callq  4013d7 <strings_not_equal>
   400f3b:	85 c0                	test   %eax,%eax
   400f3d:	74 05                	je     400f44 <phase_1+0x17>
+  # when string(rdi) != string(rsi)
   400f3f:	e8 67 07 00 00       	callq  4016ab <explode_bomb>
+  # explode bomb
   400f44:	48 83 c4 08          	add    $0x8,%rsp
+  # rsp += 0x8
   400f48:	c3                   	retq   
 
+# 1 2 4 8 16 32
 0000000000400f49 <phase_2>:
   400f49:	55                   	push   %rbp
   400f4a:	53                   	push   %rbx
   400f4b:	48 83 ec 28          	sub    $0x28,%rsp
+  # rsp -= 0x28
   400f4f:	64 48 8b 04 25 28 00 	mov    %fs:0x28,%rax
+  # rax = fs:0x28
   400f56:	00 00 
   400f58:	48 89 44 24 18       	mov    %rax,0x18(%rsp)
+  # mem[rsp + 0x18] = rax
   400f5d:	31 c0                	xor    %eax,%eax
+  # 
   400f5f:	48 89 e6             	mov    %rsp,%rsi
+  # rsi = rsp
   400f62:	e8 7a 07 00 00       	callq  4016e1 <read_six_numbers>
+  # read six numpers
+  # stored in rsi, rsi + 0x4, ... rsi + 0x14
   400f67:	83 3c 24 01          	cmpl   $0x1,(%rsp)
   400f6b:	74 05                	je     400f72 <phase_2+0x29>
+  # when 0x01 == mem[rsp] = (FIRST_NUMBER)
+  # jump to 400f72
   400f6d:	e8 39 07 00 00       	callq  4016ab <explode_bomb>
+  # when mem[rsp] != 0x01
+  # EXPLODE
   400f72:	48 89 e3             	mov    %rsp,%rbx
+  # rbx = rsp
   400f75:	48 8d 6c 24 14       	lea    0x14(%rsp),%rbp
+  # rbp = rsp + 0x14
   400f7a:	8b 03                	mov    (%rbx),%eax
+  # eax = mem[rbx]
   400f7c:	01 c0                	add    %eax,%eax
+  # eax = eax * 2
   400f7e:	39 43 04             	cmp    %eax,0x4(%rbx)
   400f81:	74 05                	je     400f88 <phase_2+0x3f>
+  # when mem[rbx + 4] == eax = mem[rbx] * 2
+  # jump to 400f88
   400f83:	e8 23 07 00 00       	callq  4016ab <explode_bomb>
+  # when mem[rbx + 4] != eax
+  # EXPLODE
   400f88:	48 83 c3 04          	add    $0x4,%rbx
+  # rbx = rbx + 0x4
   400f8c:	48 39 eb             	cmp    %rbp,%rbx
   400f8f:	75 e9                	jne    400f7a <phase_2+0x31>
+  # when (rbp = rsp + 0x14) != rbx
+  # jump 400f7a
   400f91:	48 8b 44 24 18       	mov    0x18(%rsp),%rax
+  # rax = mem[rsp + 0x18]
   400f96:	64 48 33 04 25 28 00 	xor    %fs:0x28,%rax
+  # rax = rax ^ fs:0x28
   400f9d:	00 00 
   400f9f:	74 05                	je     400fa6 <phase_2+0x5d>
+  # when 
+  # rsp = rsp + 0x28
+  # return
   400fa1:	e8 ea fb ff ff       	callq  400b90 <__stack_chk_fail@plt>
   400fa6:	48 83 c4 28          	add    $0x28,%rsp
   400faa:	5b                   	pop    %rbx
   400fab:	5d                   	pop    %rbp
   400fac:	c3                   	retq   
 
-0000000000400fad <phase_3>:
+# 1 145
+0000000000400fad <phase_3>
   400fad:	48 83 ec 18          	sub    $0x18,%rsp
+  # rsp = rsp - 0x18
   400fb1:	64 48 8b 04 25 28 00 	mov    %fs:0x28,%rax
+  # rax = fs:0x28
   400fb8:	00 00 
   400fba:	48 89 44 24 08       	mov    %rax,0x8(%rsp)
+  # mem[rsp + 8] = rax
   400fbf:	31 c0                	xor    %eax,%eax
+  # eax = 0
   400fc1:	48 8d 4c 24 04       	lea    0x4(%rsp),%rcx
+  # rcx = rsp + 4
   400fc6:	48 89 e2             	mov    %rsp,%rdx
+  # rdx = rsp
   400fc9:	be 5d 29 40 00       	mov    $0x40295d,%esi
+  # esi = 0x40295d
+  # %d %d
   400fce:	e8 6d fc ff ff       	callq  400c40 <__isoc99_sscanf@plt>
   400fd3:	83 f8 01             	cmp    $0x1,%eax
   400fd6:	7f 05                	jg     400fdd <phase_3+0x30>
+  # when 0x1 < eax (read two numbers)
+  # jump to 400fdd (2 line)
   400fd8:	e8 ce 06 00 00       	callq  4016ab <explode_bomb>
+  # when 0x1 >= eax
+  # EXPLODE
   400fdd:	83 3c 24 07          	cmpl   $0x7,(%rsp)
   400fe1:	77 3b                	ja     40101e <phase_3+0x71>
+  # when 0x7 < mem[rsp] = (FIRST_NUM)
+  # EXPLODE
   400fe3:	8b 04 24             	mov    (%rsp),%eax
+  # when 0x7 >= mem[rsp] = (FIRST_NUM)
+  # eax = mem[rsp] = (FIRST_NUM)
   400fe6:	ff 24 c5 c0 26 40 00 	jmpq   *0x4026c0(,%rax,8)
+  # jump to mem[0x4026c0 + 8 * (FIRST_NUM)]
+  # switch (FIRST_NUM)
+  # case 0:
+  # 40102a
+  # case 1:
+  # 400fed
+  # case 2:
+  # 400ff4
+  # case 3:
+  # 400ffb
+  # case 4:
+  # 401002
+  # case 5:
+  # 401009
+  # case 6:
+  # 401010
+  # case 7:
+  # 401017
   400fed:	b8 91 00 00 00       	mov    $0x91,%eax
+  # eax = 0x91
   400ff2:	eb 3b                	jmp    40102f <phase_3+0x82>
+  # jump to 40102f
   400ff4:	b8 fb 00 00 00       	mov    $0xfb,%eax
+  # eax = 0xfb
   400ff9:	eb 34                	jmp    40102f <phase_3+0x82>
+  # jump to 40102f
   400ffb:	b8 82 03 00 00       	mov    $0x382,%eax
+  # eax = 0x382
   401000:	eb 2d                	jmp    40102f <phase_3+0x82>
+  # jump to 40102f
   401002:	b8 bb 03 00 00       	mov    $0x3bb,%eax
+  # eax = 0x3bb
   401007:	eb 26                	jmp    40102f <phase_3+0x82>
+  # jump to 40102f
   401009:	b8 57 01 00 00       	mov    $0x157,%eax
+  # eax = 0x157
   40100e:	eb 1f                	jmp    40102f <phase_3+0x82>
+  # jump to 40102f
   401010:	b8 d2 03 00 00       	mov    $0x3d2,%eax
+  # eax = 0x3d2
   401015:	eb 18                	jmp    40102f <phase_3+0x82>
+  # jump to 40102f
   401017:	b8 4c 02 00 00       	mov    $0x24c,%eax
+  # eax = 0x24c
   40101c:	eb 11                	jmp    40102f <phase_3+0x82>
+  # jump to 40102f
   40101e:	e8 88 06 00 00       	callq  4016ab <explode_bomb>
+  # EXPLODE
   401023:	b8 00 00 00 00       	mov    $0x0,%eax
+  # eax = 0
   401028:	eb 05                	jmp    40102f <phase_3+0x82>
+  # jump to 40102f
   40102a:	b8 68 02 00 00       	mov    $0x268,%eax
+  # eax = 0x268
   40102f:	3b 44 24 04          	cmp    0x4(%rsp),%eax
+  # cmp eax, mem[rsp + 4] = (SECOND_NUM)
   401033:	74 05                	je     40103a <phase_3+0x8d>
+  # when eax == (SECOND_NUM)
+  # jump to 40103a
   401035:	e8 71 06 00 00       	callq  4016ab <explode_bomb>
+  # when eax != (SECOND_NUM)
+  # EXPLODE
   40103a:	48 8b 44 24 08       	mov    0x8(%rsp),%rax
+  # rax = mem[rsp + 8]
   40103f:	64 48 33 04 25 28 00 	xor    %fs:0x28,%rax
+  # rax = rax ^ fs:0x28
   401046:	00 00 
   401048:	74 05                	je     40104f <phase_3+0xa2>
   40104a:	e8 41 fb ff ff       	callq  400b90 <__stack_chk_fail@plt>
   40104f:	48 83 c4 18          	add    $0x18,%rsp
   401053:	c3                   	retq   
 
+# f(x, y, z)
+# let a = (z + y) / 2 + sign(z - y)
+# if (a == x)
+#   return 0
+# else if (a < x)
+#   return 2 * f(x, a+1, z) + 1
+# else
+#   return 2 * f(x, y, a-1)
 0000000000401054 <func4>:
   401054:	48 83 ec 08          	sub    $0x8,%rsp
-  401058:	89 d0                	mov    %edx,%eax
+  # rsp = rsp - 0x8
+  401058:	89 d0               	mov    %edx,%eax
+  # eax = edx = (PARAM_3)
   40105a:	29 f0                	sub    %esi,%eax
+  # eax = eax - esi = (PARAM_3 - PARAM_2)
   40105c:	89 c1                	mov    %eax,%ecx
+  # ecx = eax = (PARAM_3 - PARAM_2)
   40105e:	c1 e9 1f             	shr    $0x1f,%ecx
+  # ecx = ecx >> 0x1f (get sign bit)
   401061:	01 c8                	add    %ecx,%eax
+  # eax = eax + ecx
   401063:	d1 f8                	sar    %eax
+  # eax = eax >>> 1 (/2)
   401065:	8d 0c 30             	lea    (%rax,%rsi,1),%ecx
+  # ecx = rax + rsi = ((PARAM_3 + PARAM_2)/2 + SIGN(PARAM_3 - PARAM_2))
   401068:	39 f9                	cmp    %edi,%ecx
   40106a:	7e 0c                	jle    401078 <func4+0x24>
+  # when ecx <= edi = (PARAM_1)
+  # jump to 401078
+  ## when edi == ecx
+  # return 0
+  ## when edi > ecx
+  # return 2 * f(x, ecx + 1, z) + 1
   40106c:	8d 51 ff             	lea    -0x1(%rcx),%edx
+  # when ecx > edi = (PARAM_1)
+  # edx = rcx - 0x1
   40106f:	e8 e0 ff ff ff       	callq  401054 <func4>
+  # call func4
   401074:	01 c0                	add    %eax,%eax
+  # eax = eax + eax
+  ## when ecx > edi
+  # return 2 * f(x, y, ecx -1 )
   401076:	eb 15                	jmp    40108d <func4+0x39>
+  # return
   401078:	b8 00 00 00 00       	mov    $0x0,%eax
+  # eax = 0
   40107d:	39 f9                	cmp    %edi,%ecx
   40107f:	7d 0c                	jge    40108d <func4+0x39>
+  # when edi <= ecx
+  # return
   401081:	8d 71 01             	lea    0x1(%rcx),%esi
+  # when edi > ecx
+  # esi = rcx + 0x1
   401084:	e8 cb ff ff ff       	callq  401054 <func4>
+  # call func4
   401089:	8d 44 00 01          	lea    0x1(%rax,%rax,1),%eax
+  # eax = rax + rax + 0x1
   40108d:	48 83 c4 08          	add    $0x8,%rsp
   401091:	c3                   	retq   
 
+# 11 1
 0000000000401092 <phase_4>:
   401092:	48 83 ec 18          	sub    $0x18,%rsp
+  # rsp = rsp - 0x18
   401096:	64 48 8b 04 25 28 00 	mov    %fs:0x28,%rax
+  # rax = fs:0x28
   40109d:	00 00 
   40109f:	48 89 44 24 08       	mov    %rax,0x8(%rsp)
+  # mem[rsp + 0x8] = rax
   4010a4:	31 c0                	xor    %eax,%eax
+  # eax = 0
   4010a6:	48 8d 4c 24 04       	lea    0x4(%rsp),%rcx
+  # rcx = rsp + 0x4
   4010ab:	48 89 e2             	mov    %rsp,%rdx
+  # rdx = rsp
   4010ae:	be 5d 29 40 00       	mov    $0x40295d,%esi
+  # esi = 0x40295d
   4010b3:	e8 88 fb ff ff       	callq  400c40 <__isoc99_sscanf@plt>
+  # %d %d
   4010b8:	83 f8 02             	cmp    $0x2,%eax
   4010bb:	75 06                	jne    4010c3 <phase_4+0x31>
+  # when sscanf not successful
+  # EXPLODE
   4010bd:	83 3c 24 0e          	cmpl   $0xe,(%rsp)
+  # when sscanf successfull
+  # cmp 0xe, mem[rsp] = (FIRST_NUM)
   4010c1:	76 05                	jbe    4010c8 <phase_4+0x36>
+  # when (FIRST_NUM) <= 0xe
+  # jump to 4010c8 (2 lines)
   4010c3:	e8 e3 05 00 00       	callq  4016ab <explode_bomb>
+  # when (FIRST_NUM) > 0xe)
+  # EXPLODE
   4010c8:	ba 0e 00 00 00       	mov    $0xe,%edx
+  # edx = 0xe
   4010cd:	be 00 00 00 00       	mov    $0x0,%esi
+  # esi = 0x0
   4010d2:	8b 3c 24             	mov    (%rsp),%edi
+  # edi = mem[rsp] = (FIRST_NUM)
   4010d5:	e8 7a ff ff ff       	callq  401054 <func4>
+  # call func4
+  # f(FIRST_NUM, 0, e)
+  # ######################
+  # 1. f(x, 0, e) == 1 && t == 7 
+  # 2. x > 7 && f(x, 8, e) == 0 && t == b
+  # 3. x == b --> ok
   4010da:	83 f8 01             	cmp    $0x1,%eax
   4010dd:	75 07                	jne    4010e6 <phase_4+0x54>
+  # when eax != 0x1
+  # EXPLODE
   4010df:	83 7c 24 04 01       	cmpl   $0x1,0x4(%rsp)
+  # when eax == 0x1
   4010e4:	74 05                	je     4010eb <phase_4+0x59>
+  # when 0x1 = mem[rsp+4] = (SECOND_NUM)
+  # jump to 4010eb (2lines)
   4010e6:	e8 c0 05 00 00       	callq  4016ab <explode_bomb>
+  # when 0x1 != (SECOND_NUM)
+  # EXPLODE
   4010eb:	48 8b 44 24 08       	mov    0x8(%rsp),%rax
+  # ..... return
   4010f0:	64 48 33 04 25 28 00 	xor    %fs:0x28,%rax
   4010f7:	00 00 
   4010f9:	74 05                	je     401100 <phase_4+0x6e>
@@ -470,33 +634,64 @@ Disassembly of section .text:
   401100:	48 83 c4 18          	add    $0x18,%rsp
   401104:	c3                   	retq   
 
+# beldog
 0000000000401105 <phase_5>:
   401105:	53                   	push   %rbx
   401106:	48 83 ec 10          	sub    $0x10,%rsp
+  # rsp = rsp - 0x10
   40110a:	48 89 fb             	mov    %rdi,%rbx
+  # rbx = rdi
   40110d:	64 48 8b 04 25 28 00 	mov    %fs:0x28,%rax
   401114:	00 00 
   401116:	48 89 44 24 08       	mov    %rax,0x8(%rsp)
+  # mem[rsp + 8] = rax
   40111b:	31 c0                	xor    %eax,%eax
+  # eax = 0
   40111d:	e8 97 02 00 00       	callq  4013b9 <string_length>
   401122:	83 f8 06             	cmp    $0x6,%eax
   401125:	74 05                	je     40112c <phase_5+0x27>
+  # when len(STRING) == 6
+  # jump to 40112c (2 lines)
   401127:	e8 7f 05 00 00       	callq  4016ab <explode_bomb>
+  # when len(STRING) != 6)
+  # EXPLODE
   40112c:	b8 00 00 00 00       	mov    $0x0,%eax
+  # eax = 0
   401131:	0f b6 14 03          	movzbl (%rbx,%rax,1),%edx
+  # edx = ZEXT(mem[rax + rbx]) = STRING[rax]
   401135:	83 e2 0f             	and    $0xf,%edx
+  # edx = edx & 0xf
   401138:	0f b6 92 00 27 40 00 	movzbl 0x402700(%rdx),%edx
+  # edx = ZEXT(mem[rdx + 0x402700])
+  # 109 097 100 117 105 101 114 115
+  # 110 102 111 116 118 098 121 108
   40113f:	88 14 04             	mov    %dl,(%rsp,%rax,1)
+  # mem[rsp + rax] = dl
   401142:	48 83 c0 01          	add    $0x1,%rax
+  # rax = rax + 1
   401146:	48 83 f8 06          	cmp    $0x6,%rax
   40114a:	75 e5                	jne    401131 <phase_5+0x2c>
+  # when rax != 0x6
+  # jump to 401131
   40114c:	c6 44 24 06 00       	movb   $0x0,0x6(%rsp)
+  # mem[rsp + 0x6] = 0
   401151:	be b6 26 40 00       	mov    $0x4026b6,%esi
+  # esi = 0x4026b6
+  # "devils"
+  # small case : 97 ~ 112
+  # 100 101 118 105 108 115
+  # 2 5 12 4 15 7
+  # 98 101 108 100 111 103
+  # beldog
   401156:	48 89 e7             	mov    %rsp,%rdi
+  # rdi = rsp
   401159:	e8 79 02 00 00       	callq  4013d7 <strings_not_equal>
   40115e:	85 c0                	test   %eax,%eax
   401160:	74 05                	je     401167 <phase_5+0x62>
+  # when STRING(rdi) == STRING(rsi)
+  # ......... return
   401162:	e8 44 05 00 00       	callq  4016ab <explode_bomb>
+  # when !=, EXPLODE
   401167:	48 8b 44 24 08       	mov    0x8(%rsp),%rax
   40116c:	64 48 33 04 25 28 00 	xor    %fs:0x28,%rax
   401173:	00 00 
@@ -506,6 +701,7 @@ Disassembly of section .text:
   401180:	5b                   	pop    %rbx
   401181:	c3                   	retq   
 
+# 5 6 1 2 4 3
 0000000000401182 <phase_6>:
   401182:	41 56                	push   %r14
   401184:	41 55                	push   %r13
@@ -516,77 +712,168 @@ Disassembly of section .text:
   40118e:	64 48 8b 04 25 28 00 	mov    %fs:0x28,%rax
   401195:	00 00 
   401197:	48 89 44 24 58       	mov    %rax,0x58(%rsp)
+  # mem[rsp + 0x58] = rax
   40119c:	31 c0                	xor    %eax,%eax
+  # eax = 0
   40119e:	48 89 e6             	mov    %rsp,%rsi
+  # rsi = rsp
   4011a1:	e8 3b 05 00 00       	callq  4016e1 <read_six_numbers>
+  # READ SIX NUMBERS #########################
+  # stored in rsp, rsp + 0x4, ... rsp + 0x14 #
   4011a6:	49 89 e4             	mov    %rsp,%r12
+  # r12 = rsp
   4011a9:	49 89 e5             	mov    %rsp,%r13
+  # r13 = rsp
   4011ac:	41 be 00 00 00 00    	mov    $0x0,%r14d
+  # r14d = 0x0
   4011b2:	4c 89 ed             	mov    %r13,%rbp
+  # rbp = r13
   4011b5:	41 8b 45 00          	mov    0x0(%r13),%eax
+  # eax = mem[r13]
   4011b9:	83 e8 01             	sub    $0x1,%eax
+  # eax = eax - 1
   4011bc:	83 f8 05             	cmp    $0x5,%eax
   4011bf:	76 05                	jbe    4011c6 <phase_6+0x44>
+  # when eax <= 0x5
+  # jump to 4011c6 (2lines)
   4011c1:	e8 e5 04 00 00       	callq  4016ab <explode_bomb>
+  # when eax > 5
+  # EXPLODE
   4011c6:	41 83 c6 01          	add    $0x1,%r14d
+  # r14d = r14d + 0x1 = 0x1
   4011ca:	41 83 fe 06          	cmp    $0x6,%r14d
   4011ce:	74 21                	je     4011f1 <phase_6+0x6f>
+  # when r14d == 0x6
+  # jump to 4011f1
   4011d0:	44 89 f3             	mov    %r14d,%ebx
+  # ebx = r14d (i)
   4011d3:	48 63 c3             	movslq %ebx,%rax
+  # rax = sext(ebx)
   4011d6:	8b 04 84             	mov    (%rsp,%rax,4),%eax
+  # eax = mem[rsp + 4 * rax] = (rax'th_NUMBER)
   4011d9:	39 45 00             	cmp    %eax,0x0(%rbp)
   4011dc:	75 05                	jne    4011e3 <phase_6+0x61>
+  # when (FIRST_NUMBER) = mem[rbp] != eax = (i'th_NUMBER)
+  # jump to 4011e3 (2 lines)
   4011de:	e8 c8 04 00 00       	callq  4016ab <explode_bomb>
+  # when mem[rbp] == eax
+  # EXPLODE
   4011e3:	83 c3 01             	add    $0x1,%ebx
+  # ebx = ebx + 0x1 
   4011e6:	83 fb 05             	cmp    $0x5,%ebx
   4011e9:	7e e8                	jle    4011d3 <phase_6+0x51>
+  # when ebx <= 0x5
+  # jump to 4011d3
   4011eb:	49 83 c5 04          	add    $0x4,%r13
+  # e13 = r13 + 0x4
   4011ef:	eb c1                	jmp    4011b2 <phase_6+0x30>
+  # jump to 4011b2
+  # #######################################
+  # # 6 numbers should be distinct && <= 6 #
   4011f1:	48 8d 4c 24 18       	lea    0x18(%rsp),%rcx
+  # rcx = rsp + 0x18
   4011f6:	ba 07 00 00 00       	mov    $0x7,%edx
+  # edx = 0x7
   4011fb:	89 d0                	mov    %edx,%eax
+  # eax = edx = 0x7
   4011fd:	41 2b 04 24          	sub    (%r12),%eax
+  # eax = eax - mem[r12]
   401201:	41 89 04 24          	mov    %eax,(%r12)
+  # mem[r12] = eax
   401205:	49 83 c4 04          	add    $0x4,%r12
+  # r12 = 0x4
   401209:	4c 39 e1             	cmp    %r12,%rcx
   40120c:	75 ed                	jne    4011fb <phase_6+0x79>
+  # while rcx != r12
+  # jump to 4011fb
+  # arr[i] = 7 - arr[i]; #########################
   40120e:	be 00 00 00 00       	mov    $0x0,%esi
+  # esi = 0x0
   401213:	eb 1a                	jmp    40122f <phase_6+0xad>
+  # jump to 40122f
   401215:	48 8b 52 08          	mov    0x8(%rdx),%rdx
+  # rdx = mem[rdx + 8]
   401219:	83 c0 01             	add    $0x1,%eax
+  # eax = eax + 1
   40121c:	39 c8                	cmp    %ecx,%eax
   40121e:	75 f5                	jne    401215 <phase_6+0x93>
+  # while eax != ecx
+  # jump to 401215
   401220:	48 89 54 74 20       	mov    %rdx,0x20(%rsp,%rsi,2)
+  # mem[rsp + 2 * rsi + 0x20] = rdx
   401225:	48 83 c6 04          	add    $0x4,%rsi
+  # rsi = rsi + 4
   401229:	48 83 fe 18          	cmp    $0x18,%rsi
   40122d:	74 14                	je     401243 <phase_6+0xc1>
+  # when rsi == 0x18
+  # jump to 401243
   40122f:	8b 0c 34             	mov    (%rsp,%rsi,1),%ecx
+  # ecx = mem[rsp+rsi]
   401232:	b8 01 00 00 00       	mov    $0x1,%eax
+  # eax = 1
   401237:	ba f0 42 60 00       	mov    $0x6042f0,%edx
+  # edx = 0x6042f0
   40123c:	83 f9 01             	cmp    $0x1,%ecx
   40123f:	7f d4                	jg     401215 <phase_6+0x93>
+  # when ecx > 0x1
+  # jump to 401215
   401241:	eb dd                	jmp    401220 <phase_6+0x9e>
+  # when ecx <= 0x1
+  # jump to 401220
+  # ##################################
+  # ecx = arr[i]
+  # for ecx - 1
+  #   rdx = mem[rdx + 8]
+  # mem[rsp + 2*(4 * i) + 0x20] = rdx
   401243:	48 8b 5c 24 20       	mov    0x20(%rsp),%rbx
+  # rbx = mem[rsp + 0x20]
   401248:	48 8d 44 24 20       	lea    0x20(%rsp),%rax
+  # rax = rsp + 0x20
   40124d:	48 8d 74 24 48       	lea    0x48(%rsp),%rsi
+  # rsi = rsp + 0x48
   401252:	48 89 d9             	mov    %rbx,%rcx
+  # rcx = rbx = mem[rsp + 0x20]
   401255:	48 8b 50 08          	mov    0x8(%rax),%rdx
+  # rdx = mem[rax + 0x8]
   401259:	48 89 51 08          	mov    %rdx,0x8(%rcx)
+  # mem[rcx + 0x8] = rdx
   40125d:	48 83 c0 08          	add    $0x8,%rax
+  # rax = rax + 0x8
   401261:	48 89 d1             	mov    %rdx,%rcx
+  # rcx = rdx
   401264:	48 39 c6             	cmp    %rax,%rsi
   401267:	75 ec                	jne    401255 <phase_6+0xd3>
+  # when rsi != rax
+  # jump to 401255
+  # ##########################
+  # let mem[rsp + 0x20] = a, mem[rsp + 0x28] = b, ...
+  # mem[a+8] = b, .... mem[e+8] = f
   401269:	48 c7 42 08 00 00 00 	movq   $0x0,0x8(%rdx)
+  # mem[rdx + 0x8] = 0x0
+  # mem[f+8] = 0
   401270:	00 
   401271:	bd 05 00 00 00       	mov    $0x5,%ebp
+  # ebp = 0x5
   401276:	48 8b 43 08          	mov    0x8(%rbx),%rax
+  # rax = mem[rbx + 0x8] = mem[a+8] = b
   40127a:	8b 00                	mov    (%rax),%eax
+  # eax = mem[rax] = mem[b]
   40127c:	39 03                	cmp    %eax,(%rbx)
   40127e:	7d 05                	jge    401285 <phase_6+0x103>
+  # when mem[rbx] >= eax
+  # jump to 401285
   401280:	e8 26 04 00 00       	callq  4016ab <explode_bomb>
+  # when mem[rbx] < eax
+  # EXPLODE
   401285:	48 8b 5b 08          	mov    0x8(%rbx),%rbx
+  # rbx = mem[rbx + 0x8]
   401289:	83 ed 01             	sub    $0x1,%ebp
+  # ebp = ebp - 0x1
   40128c:	75 e8                	jne    401276 <phase_6+0xf4>
+  # when ebp != 0
+  # jump to 401276
+  # ###################3
+  # mem[a] >= mem[b] >= mem[c] ....
   40128e:	48 8b 44 24 58       	mov    0x58(%rsp),%rax
   401293:	64 48 33 04 25 28 00 	xor    %fs:0x28,%rax
   40129a:	00 00 
@@ -626,8 +913,11 @@ Disassembly of section .text:
   4012ee:	53                   	push   %rbx
   4012ef:	e8 2c 04 00 00       	callq  401720 <read_line>
   4012f4:	ba 0a 00 00 00       	mov    $0xa,%edx
+  # edx = 0xa
   4012f9:	be 00 00 00 00       	mov    $0x0,%esi
+  # esi = 0x0
   4012fe:	48 89 c7             	mov    %rax,%rdi
+  # rdi = rax
   401301:	e8 1a f9 ff ff       	callq  400c20 <strtol@plt>
   401306:	48 89 c3             	mov    %rax,%rbx
   401309:	8d 40 ff             	lea    -0x1(%rax),%eax
@@ -675,52 +965,103 @@ Disassembly of section .text:
   4013af:	bf 08 00 00 00       	mov    $0x8,%edi
   4013b4:	e8 c7 f8 ff ff       	callq  400c80 <exit@plt>
 
+# eax = length of string starting from rdi (not including '\0')
 00000000004013b9 <string_length>:
   4013b9:	80 3f 00             	cmpb   $0x0,(%rdi)
   4013bc:	74 13                	je     4013d1 <string_length+0x18>
+  # when mem[rdi] == 0
+  # eax = 0
+  # return
   4013be:	b8 00 00 00 00       	mov    $0x0,%eax
+  # eax = 0
   4013c3:	48 83 c7 01          	add    $0x1,%rdi
   4013c7:	83 c0 01             	add    $0x1,%eax
   4013ca:	80 3f 00             	cmpb   $0x0,(%rdi)
   4013cd:	75 f4                	jne    4013c3 <string_length+0xa>
+  # while (mem[rdi] != 0)
+  #     rdi += 1
+  #     eax += 1
   4013cf:	f3 c3                	repz retq 
+  # return
   4013d1:	b8 00 00 00 00       	mov    $0x0,%eax
   4013d6:	c3                   	retq   
 
+# ret in eax (0 or 1)
+# input string starts in rdi, rsi
 00000000004013d7 <strings_not_equal>:
   4013d7:	41 54                	push   %r12
   4013d9:	55                   	push   %rbp
   4013da:	53                   	push   %rbx
   4013db:	48 89 fb             	mov    %rdi,%rbx
+  # rbx = rdi; = STR_A
   4013de:	48 89 f5             	mov    %rsi,%rbp
+  # rbp = rsi; = STR_B
   4013e1:	e8 d3 ff ff ff       	callq  4013b9 <string_length>
+  # eax = len(rdi) = len(STR_A)
   4013e6:	41 89 c4             	mov    %eax,%r12d
+  # r12d = eax = len(STR_A)
   4013e9:	48 89 ef             	mov    %rbp,%rdi
+  # rdi = rbp = STR_B
   4013ec:	e8 c8 ff ff ff       	callq  4013b9 <string_length>
+  # eax = len(rdi) = len(STR_B)
   4013f1:	ba 01 00 00 00       	mov    $0x1,%edx
+  # edx = 1
   4013f6:	41 39 c4             	cmp    %eax,%r12d
   4013f9:	75 3c                	jne    401437 <strings_not_equal+0x60>
+  # when len(STR_B) != len(STR_A)
+  # eax = edx = 1
+  # reutrn
   4013fb:	0f b6 03             	movzbl (%rbx),%eax
+  # when len(STR_B) == len(STR_A)
+  # eax = sext(mem[rbx]) = sext(mem[STR_A])
   4013fe:	84 c0                	test   %al,%al
   401400:	74 22                	je     401424 <strings_not_equal+0x4d>
+  # when al == 0
+  # eax = edx = 0
+  # return
   401402:	3a 45 00             	cmp    0x0(%rbp),%al
   401405:	74 07                	je     40140e <strings_not_equal+0x37>
+  # when al == mem[STR_B] 
+  # eax = edx = 0
+  # return
   401407:	eb 22                	jmp    40142b <strings_not_equal+0x54>
+  # when al != mem[STR_B] 
+  # eax = edx = 1
+  # return
   401409:	3a 45 00             	cmp    0x0(%rbp),%al
   40140c:	75 24                	jne    401432 <strings_not_equal+0x5b>
+  # when al != mem[STR_B]
+  # eax = edx = 1
+  # return
   40140e:	48 83 c3 01          	add    $0x1,%rbx
+  # rbx += 1
   401412:	48 83 c5 01          	add    $0x1,%rbp
+  # rbp += 1
   401416:	0f b6 03             	movzbl (%rbx),%eax
+  # eax = sext(rbx)
   401419:	84 c0                	test   %al,%al
   40141b:	75 ec                	jne    401409 <strings_not_equal+0x32>
+  # when al == 0
+  # jump to 401409
   40141d:	ba 00 00 00 00       	mov    $0x0,%edx
+  # edx = 0
   401422:	eb 13                	jmp    401437 <strings_not_equal+0x60>
+  # eax = edx = 0
+  # return
   401424:	ba 00 00 00 00       	mov    $0x0,%edx
+  # edx = 0
   401429:	eb 0c                	jmp    401437 <strings_not_equal+0x60>
+  # eax = edx = 0
+  # return
   40142b:	ba 01 00 00 00       	mov    $0x1,%edx
+  # edx = 1
   401430:	eb 05                	jmp    401437 <strings_not_equal+0x60>
+  # eax = edx = 1
+  # return
   401432:	ba 01 00 00 00       	mov    $0x1,%edx
+  # edx = 1
   401437:	89 d0                	mov    %edx,%eax
+  # eax = edx
   401439:	5b                   	pop    %rbx
   40143a:	5d                   	pop    %rbp
   40143b:	41 5c                	pop    %r12
@@ -908,23 +1249,42 @@ Disassembly of section .text:
   4016d7:	bf 08 00 00 00       	mov    $0x8,%edi
   4016dc:	e8 9f f5 ff ff       	callq  400c80 <exit@plt>
 
+# 6 numbers are stored in rdx, rcx, r8, r9, rax
+# which is rsi, rsi + 0x4, ... rsi + 0x14
+# read number is in eax (6 if successful)
 00000000004016e1 <read_six_numbers>:
   4016e1:	48 83 ec 08          	sub    $0x8,%rsp
+  # rsp = rsp - 0x8
   4016e5:	48 89 f2             	mov    %rsi,%rdx
+  # rdx = rsi
   4016e8:	48 8d 4e 04          	lea    0x4(%rsi),%rcx
+  # rcx = rsi + 0x4
   4016ec:	48 8d 46 14          	lea    0x14(%rsi),%rax
+  # rax = rsi + 0x14
   4016f0:	50                   	push   %rax
   4016f1:	48 8d 46 10          	lea    0x10(%rsi),%rax
+  # rax = rsi + 0x10
   4016f5:	50                   	push   %rax
   4016f6:	4c 8d 4e 0c          	lea    0xc(%rsi),%r9
+  # r9 = rsi + 0x0c
   4016fa:	4c 8d 46 08          	lea    0x8(%rsi),%r8
+  # r8 = rsi + 0x8
   4016fe:	be 51 29 40 00       	mov    $0x402951,%esi
+  # esi = 0x402951
+  # %d %d %d %d %d %d
   401703:	b8 00 00 00 00       	mov    $0x0,%eax
+  # eax = 0x0
   401708:	e8 33 f5 ff ff       	callq  400c40 <__isoc99_sscanf@plt>
   40170d:	48 83 c4 10          	add    $0x10,%rsp
+  # rsp = rsp + 0x10
   401711:	83 f8 05             	cmp    $0x5,%eax
   401714:	7f 05                	jg     40171b <read_six_numbers+0x3a>
+  # when 0x5 > eax
+  # rsp = rsp + 0x8
+  # return
   401716:	e8 90 ff ff ff       	callq  4016ab <explode_bomb>
+  # when 0x5 <= eax
+  # EXPLODE
   40171b:	48 83 c4 08          	add    $0x8,%rsp
   40171f:	c3                   	retq   
 
@@ -1003,7 +1363,9 @@ Disassembly of section .text:
   401851:	00 00 
   401853:	48 89 44 24 68       	mov    %rax,0x68(%rsp)
   401858:	31 c0                	xor    %eax,%eax
+  # eax = 0
   40185a:	bf 01 00 00 00       	mov    $0x1,%edi
+  # edi = 0x1
   40185f:	e8 3d fd ff ff       	callq  4015a1 <send_msg>
   401864:	83 3d 41 2f 20 00 06 	cmpl   $0x6,0x202f41(%rip)        # 6047ac <num_input_strings>
   40186b:	75 6d                	jne    4018da <phase_defused+0x94>
