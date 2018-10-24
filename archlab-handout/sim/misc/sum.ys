@@ -20,12 +20,18 @@ ele3:
 # ls in %rdi
 sum_list:
 	xorq %rax,%rax          # val = 0
-	andq %rdi,%rdi		# ls == 0?
-	je done			# Yes, goto done
+	andq %rdi,%rdi			# ls == 0?
+	je done					# Yes, goto done
 loop:
 	# FILL IN HERE
+	pushq %rbx
+	mrmovq (%rdi),%rbx
+	addq %rbx,%rax
+	popq %rbx
+	mrmovq 8(%rdi),%rdi
+	andq %rdi,%rdi
 	jne loop	        # If null, goto done
-done:	ret			# return
+done:	ret				# return
 
 .pos 0x100
 Stack:

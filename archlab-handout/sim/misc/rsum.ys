@@ -23,6 +23,10 @@ rsum_list:
 	andq %rdi,%rdi		# ls == 0?
 	je zret			# Yes, goto zreturn
 	# FILL IN HERE
+	mrmovq (%rdi),%rbx
+	mrmovq 8(%rdi),%rdi
+	call rsum_list
+	addq %rbx,%rax
 	jmp done		# Goto done
 zret:	xorq %rax,%rax		# val = 0
 done:	popq %rbx		# restore %rbx

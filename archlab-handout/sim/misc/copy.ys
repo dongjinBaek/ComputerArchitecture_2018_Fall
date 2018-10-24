@@ -23,6 +23,20 @@ dest:
 # src in %rdi, dest in %rsi, len in %rdx
 copy_block:
 	# FILL IN HERE
+	xorq %rax,%rax
+	andq %rdx,%rdx
+	jle done 
+loop:
+	pushq %rbx
+	mrmovq (%rdi),%rbx
+	iaddq $8,%rdi
+	rmmovq %rbx,(%rsi)
+	iaddq $8,%rsi
+	xorq %rbx,%rax
+	popq %rbx
+	iaddq $-1,%rdx
+	jg loop
+done:
 	ret			# Return
 
 .pos 0x100
