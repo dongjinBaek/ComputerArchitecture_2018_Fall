@@ -17,3 +17,9 @@ a.out
 # Binary #
 ##########
 datalab-handout/btest
+
+
+# Include #
+###########
+!archlab/Lab3.tar
+
