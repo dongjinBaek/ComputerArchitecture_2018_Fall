@@ -17,11 +17,12 @@ ncopy:
 ##################################################################
 	# Loop header
 	xorq %rax, %rax # count = 0;
+
+Mod2:
 	irmovq $1, %r9
 	andq %rdx, %r9 # len is Even ?
-	je Test
+	je Mod4
 
-Odd:
 	mrmovq (%rdi), %r10 # read val from src
 	iaddq $8, %rdi
 	rmmovq %r10, (%rsi) # store it to dst
@@ -29,28 +30,65 @@ Odd:
 
 	iaddq $-1, %rdx
 	andq %r10, %r10
+	jle Mod4
+	iaddq $1, %rax
+	jmp Mod4
+
+Mod4:
+	irmovq $2, %r9
+	andq %rdx, %r9 # len is 0, 1 mod 4 ?
+	je Test
+
+	mrmovq (%rdi), %r10 # read val from src
+	iaddq $16, %rdi
+	rmmovq %r10, (%rsi) # store it to dst
+
+	andq %r10, %r10
+	jle Mod4Second
+	iaddq $1, %rax
+Mod4Second:
+	mrmovq $-8(%rdi), %r10 # read val from src
+	iaddq $16, %rsi
+	rmmovq %r10, $-8(%rsi) # store it to dst
+
+	iaddq $-2, %rdx
+	andq %r10, %r10
 	jle Test
 	iaddq $1, %rax
 	jmp Test
+
 L1:
 	mrmovq (%rdi), %r10 # read val from src
-	iaddq $16, %rsi
-	rmmovq %r10, $-16(%rsi) # store it to dst
+	iaddq $32, %rdi
+	rmmovq %r10, (%rsi) # store it to dst
 
 	andq %r10, %r10	
 	jle L2 
 	iaddq $1, %rax
 L2:
-	mrmovq $8(%rdi), %r10 # read val from src
-	iaddq $16, %rdi
-	rmmovq %r10, $-8(%rsi) # store it to dst
+	mrmovq $-24(%rdi), %r10 # read val from src
+	iaddq $32, %rsi
+	rmmovq %r10, $-24(%rsi) # store it to dst
 
 	andq %r10, %r10
+	jle L3
+	iaddq $1, %rax
+L3:
+	mrmovq $-16(%rdi), %r10 # read val from src
+	mrmovq $-8(%rdi), %r9 # read val from src
+	rmmovq %r10, $-16(%rsi) # store it to dst
+	rmmovq %r9, $-8(%rsi) # store it to dst
+
+	andq %r10, %r10
+	jle L4 
+	iaddq $1, %rax
+L4:
+	andq %r9, %r9
 	jle Test
 	iaddq $1, %rax
 
 Test:
-	iaddq $-2, %rdx # (len-2) >= 0 ?
+	iaddq $-4, %rdx # (len-4) >= 0 ?
 	jge L1
 #################################################################
 # Do not modify the following section of code
