@@ -17,8 +17,11 @@ ncopy:
 ##################################################################
 	# Loop header
 	xorq %rax, %rax # count = 0;
+	andq %rdx, %rdx
+	jg Mod2_1
+	ret
 
-Mod2:
+Mod2_1:
 	irmovq $1, %r9
 	andq %rdx, %r9 # len is Even ?
 	je Mod4_1
@@ -28,10 +31,13 @@ Mod2:
 	rmmovq %r10, (%rsi) # store it to dst
 	iaddq $8, %rsi
 
-	iaddq $-1, %rdx
 	andq %r10, %r10
-	jle Mod4_1
+	jle Mod2_2
 	iaddq $1, %rax
+Mod2_2:
+	iaddq $-1, %rdx
+	jne Mod4_1
+	ret
 
 Mod4_1:
 	irmovq $2, %r9
@@ -49,10 +55,14 @@ Mod4_1:
 Mod4_2:
 	iaddq $16, %rdi
 	iaddq $16, %rsi
-	iaddq $-2, %rdx
+
 	andq %r9, %r9
-	jle Mod8_1
+	jle Mod4_3
 	iaddq $1, %rax
+Mod4_3:
+	iaddq $-2, %rdx
+	jne Mod8_1
+	ret
 
 Mod8_1:
 	irmovq $4, %r9
@@ -83,11 +93,14 @@ Mod8_3:
 Mod8_4:
 	iaddq $32, %rdi
 	iaddq $32, %rsi
-	iaddq $-4, %rdx
 	andq %r9, %r9
-	jle Test
+	jle Mod8_5
 	iaddq $1, %rax
-	jmp Test
+Mod8_5:
+	iaddq $-4, %rdx
+	jne Test
+	ret
+
 
 L1:
 	mrmovq (%rdi), %r10 # read val from src

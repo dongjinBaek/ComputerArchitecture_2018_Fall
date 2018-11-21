@@ -30,6 +30,9 @@ ncopy:
 ##################################################################
 	# Loop header
 	xorq %rax, %rax # count = 0;
+	andq %rdx, %rdx
+	jg Mod2
+	ret
 
 Mod2:
 	irmovq $1, %r9
@@ -42,6 +45,9 @@ Mod2:
 	iaddq $8, %rsi
 
 	iaddq $-1, %rdx
+	jne Mod2_1
+	ret
+Mod2_1:
 	andq %r10, %r10
 	jle Mod4_1
 	iaddq $1, %rax
@@ -63,6 +69,9 @@ Mod4_2:
 	iaddq $16, %rdi
 	iaddq $16, %rsi
 	iaddq $-2, %rdx
+	jne Mod4_3
+	ret
+Mod4_3:
 	andq %r9, %r9
 	jle Mod8_1
 	iaddq $1, %rax
@@ -100,7 +109,9 @@ Mod8_4:
 	andq %r9, %r9
 	jle Test
 	iaddq $1, %rax
-	jmp Test
+	jne Test
+	ret
+
 
 L1:
 	mrmovq (%rdi), %r10 # read val from src
@@ -177,9 +188,9 @@ EndFun:
 	.align 8
 src:
 	.quad -1
-	.quad -2
+	.quad 2
 	.quad 3
-	.quad 4
+	.quad -4
 	.quad 0xbcdefa # This shouldn't get moved
 
 	.align 16
