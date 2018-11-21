@@ -21,7 +21,7 @@
 0x002:                      | Mod2:
 0x002: 30f90100000000000000 | 	irmovq $1, %r9
 0x00c: 6229                 | 	andq %rdx, %r9 # len is Even ?
-0x00e: 736700000000000000   | 	je Mod4
+0x00e: 736700000000000000   | 	je Mod4_1
                             | 
 0x017: 50a70000000000000000 | 	mrmovq (%rdi), %r10 # read val from src
 0x021: c0f70800000000000000 | 	iaddq $8, %rdi
@@ -30,73 +30,131 @@
                             | 
 0x03f: c0f2ffffffffffffffff | 	iaddq $-1, %rdx
 0x049: 62aa                 | 	andq %r10, %r10
-0x04b: 716700000000000000   | 	jle Mod4
+0x04b: 716700000000000000   | 	jle Mod4_1
 0x054: c0f00100000000000000 | 	iaddq $1, %rax
-0x05e: 706700000000000000   | 	jmp Mod4
+0x05e: 706700000000000000   | 	jmp Mod4_1
                             | 
-0x067:                      | Mod4:
+0x067:                      | Mod4_1:
 0x067: 30f90200000000000000 | 	irmovq $2, %r9
 0x071: 6229                 | 	andq %rdx, %r9 # len is 0, 1 mod 4 ?
-0x073: 73ad01000000000000   | 	je Test
+0x073: 73f500000000000000   | 	je Mod8_1
                             | 
 0x07c: 50a70000000000000000 | 	mrmovq (%rdi), %r10 # read val from src
-0x086: c0f71000000000000000 | 	iaddq $16, %rdi
+0x086: 50970800000000000000 | 	mrmovq $8(%rdi), %r9 # read val from src
 0x090: 40a60000000000000000 | 	rmmovq %r10, (%rsi) # store it to dst
+0x09a: 40960800000000000000 | 	rmmovq %r9, $8(%rsi) # store it to dst
                             | 
-0x09a: 62aa                 | 	andq %r10, %r10
-0x09c: 71af00000000000000   | 	jle Mod4Second
-0x0a5: c0f00100000000000000 | 	iaddq $1, %rax
-0x0af:                      | Mod4Second:
-0x0af: 50a7f8ffffffffffffff | 	mrmovq $-8(%rdi), %r10 # read val from src
-0x0b9: c0f61000000000000000 | 	iaddq $16, %rsi
-0x0c3: 40a6f8ffffffffffffff | 	rmmovq %r10, $-8(%rsi) # store it to dst
-                            | 
+0x0a4: 62aa                 | 	andq %r10, %r10
+0x0a6: 71b900000000000000   | 	jle Mod4_2
+0x0af: c0f00100000000000000 | 	iaddq $1, %rax
+0x0b9:                      | Mod4_2:
+0x0b9: c0f71000000000000000 | 	iaddq $16, %rdi
+0x0c3: c0f61000000000000000 | 	iaddq $16, %rsi
 0x0cd: c0f2feffffffffffffff | 	iaddq $-2, %rdx
-0x0d7: 62aa                 | 	andq %r10, %r10
-0x0d9: 71ad01000000000000   | 	jle Test
+0x0d7: 6299                 | 	andq %r9, %r9
+0x0d9: 71f500000000000000   | 	jle Mod8_1
 0x0e2: c0f00100000000000000 | 	iaddq $1, %rax
-0x0ec: 70ad01000000000000   | 	jmp Test
+0x0ec: 70f500000000000000   | 	jmp Mod8_1
                             | 
-0x0f5:                      | L1:
-0x0f5: 50a70000000000000000 | 	mrmovq (%rdi), %r10 # read val from src
-0x0ff: c0f72000000000000000 | 	iaddq $32, %rdi
-0x109: 40a60000000000000000 | 	rmmovq %r10, (%rsi) # store it to dst
+0x0f5:                      | Mod8_1:
+0x0f5: 30f90400000000000000 | 	irmovq $4, %r9
+0x0ff: 6229                 | 	andq %rdx, %r9 # len is 0, 1, 2, 3 mod 8
+0x101: 733103000000000000   | 	je Test
                             | 
-0x113: 62aa                 | 	andq %r10, %r10	
-0x115: 712801000000000000   | 	jle L2 
-0x11e: c0f00100000000000000 | 	iaddq $1, %rax
-0x128:                      | L2:
-0x128: 50a7e8ffffffffffffff | 	mrmovq $-24(%rdi), %r10 # read val from src
-0x132: c0f62000000000000000 | 	iaddq $32, %rsi
-0x13c: 40a6e8ffffffffffffff | 	rmmovq %r10, $-24(%rsi) # store it to dst
+0x10a: 50a70000000000000000 | 	mrmovq (%rdi), %r10
+0x114: 50970800000000000000 | 	mrmovq $8(%rdi), %r9
+0x11e: 40a60000000000000000 | 	rmmovq %r10, (%rsi)
+0x128: 40960800000000000000 | 	rmmovq %r9, $8(%rsi)
                             | 
-0x146: 62aa                 | 	andq %r10, %r10
-0x148: 715b01000000000000   | 	jle L3
-0x151: c0f00100000000000000 | 	iaddq $1, %rax
-0x15b:                      | L3:
-0x15b: 50a7f0ffffffffffffff | 	mrmovq $-16(%rdi), %r10 # read val from src
-0x165: 40a6f0ffffffffffffff | 	rmmovq %r10, $-16(%rsi) # store it to dst
+0x132: 62aa                 | 	andq %r10, %r10
+0x134: 714701000000000000   | 	jle Mod8_2
+0x13d: c0f00100000000000000 | 	iaddq $1, %rax
+0x147:                      | Mod8_2:
+0x147: 6299                 | 	andq %r9, %r9
+0x149: 715c01000000000000   | 	jle Mod8_3
+0x152: c0f00100000000000000 | 	iaddq $1, %rax
+0x15c:                      | Mod8_3:
+0x15c: 50a71000000000000000 | 	mrmovq $16(%rdi), %r10
+0x166: 50971800000000000000 | 	mrmovq $24(%rdi), %r9
+0x170: 40a61000000000000000 | 	rmmovq %r10, $16(%rsi)
+0x17a: 40961800000000000000 | 	rmmovq %r9, $24(%rsi)
                             | 
-0x16f: 62aa                 | 	andq %r10, %r10	
-0x171: 718401000000000000   | 	jle L4 
-0x17a: c0f00100000000000000 | 	iaddq $1, %rax
-0x184:                      | L4:
-0x184: 50a7f8ffffffffffffff | 	mrmovq $-8(%rdi), %r10 # read val from src
-0x18e: 40a6f8ffffffffffffff | 	rmmovq %r10, $-8(%rsi) # store it to dst
+0x184: 62aa                 | 	andq %r10, %r10
+0x186: 719901000000000000   | 	jle Mod8_4
+0x18f: c0f00100000000000000 | 	iaddq $1, %rax
+0x199:                      | Mod8_4:
+0x199: c0f72000000000000000 | 	iaddq $32, %rdi
+0x1a3: c0f62000000000000000 | 	iaddq $32, %rsi
+0x1ad: c0f2fcffffffffffffff | 	iaddq $-4, %rdx
+0x1b7: 6299                 | 	andq %r9, %r9
+0x1b9: 713103000000000000   | 	jle Test
+0x1c2: c0f00100000000000000 | 	iaddq $1, %rax
+0x1cc: 703103000000000000   | 	jmp Test
                             | 
-0x198: 62aa                 | 	andq %r10, %r10
-0x19a: 71ad01000000000000   | 	jle Test
-0x1a3: c0f00100000000000000 | 	iaddq $1, %rax
+0x1d5:                      | L1:
+0x1d5: 50a70000000000000000 | 	mrmovq (%rdi), %r10 # read val from src
+0x1df: 50970800000000000000 | 	mrmovq $8(%rdi), %r9 # read val from src
+0x1e9: 40a60000000000000000 | 	rmmovq %r10, (%rsi) # store it to dst
+0x1f3: 40960800000000000000 | 	rmmovq %r9, $8(%rsi) # store it to dst
                             | 
-0x1ad:                      | Test:
-0x1ad: c0f2fcffffffffffffff | 	iaddq $-4, %rdx # (len-2) >= 0 ?
-0x1b7: 75f500000000000000   | 	jge L1
+0x1fd: 62aa                 | 	andq %r10, %r10
+0x1ff: 711202000000000000   | 	jle L2 
+0x208: c0f00100000000000000 | 	iaddq $1, %rax
+0x212:                      | L2:
+0x212: 6299                 | 	andq %r9, %r9
+0x214: 712702000000000000   | 	jle L3
+0x21d: c0f00100000000000000 | 	iaddq $1, %rax
+0x227:                      | L3:
+0x227: 50a71000000000000000 | 	mrmovq $16(%rdi), %r10 # read val from src
+0x231: 50971800000000000000 | 	mrmovq $24(%rdi), %r9 # read val from src
+0x23b: 40a61000000000000000 | 	rmmovq %r10, $16(%rsi) # store it to dst
+0x245: 40961800000000000000 | 	rmmovq %r9, $24(%rsi) # store it to dst
+                            | 
+0x24f: 62aa                 | 	andq %r10, %r10
+0x251: 716402000000000000   | 	jle L4 
+0x25a: c0f00100000000000000 | 	iaddq $1, %rax
+0x264:                      | L4:
+0x264: 6299                 | 	andq %r9, %r9
+0x266: 717902000000000000   | 	jle L5
+0x26f: c0f00100000000000000 | 	iaddq $1, %rax
+0x279:                      | L5:
+0x279: 50a72000000000000000 | 	mrmovq $32(%rdi), %r10 # read val from src
+0x283: 50972800000000000000 | 	mrmovq $40(%rdi), %r9 # read val from src
+0x28d: 40a62000000000000000 | 	rmmovq %r10, $32(%rsi) # store it to dst
+0x297: 40962800000000000000 | 	rmmovq %r9, $40(%rsi) # store it to dst
+                            | 
+0x2a1: 62aa                 | 	andq %r10, %r10
+0x2a3: 71b602000000000000   | 	jle L6 
+0x2ac: c0f00100000000000000 | 	iaddq $1, %rax
+0x2b6:                      | L6:
+0x2b6: 6299                 | 	andq %r9, %r9
+0x2b8: 71cb02000000000000   | 	jle L7
+0x2c1: c0f00100000000000000 | 	iaddq $1, %rax
+0x2cb:                      | L7:
+0x2cb: 50a73000000000000000 | 	mrmovq $48(%rdi), %r10 # read val from src
+0x2d5: 50973800000000000000 | 	mrmovq $56(%rdi), %r9 # read val from src
+0x2df: 40a63000000000000000 | 	rmmovq %r10, $48(%rsi) # store it to dst
+0x2e9: 40963800000000000000 | 	rmmovq %r9, $56(%rsi) # store it to dst
+                            | 
+0x2f3: 62aa                 | 	andq %r10, %r10
+0x2f5: 710803000000000000   | 	jle L8 
+0x2fe: c0f00100000000000000 | 	iaddq $1, %rax
+0x308:                      | L8:
+0x308: c0f74000000000000000 | 	iaddq $64, %rdi
+0x312: c0f64000000000000000 | 	iaddq $64, %rsi
+0x31c: 6299                 | 	andq %r9, %r9
+0x31e: 713103000000000000   | 	jle Test
+0x327: c0f00100000000000000 | 	iaddq $1, %rax
+                            | 
+0x331:                      | Test:
+0x331: c0f2f8ffffffffffffff | 	iaddq $-8, %rdx # (len-8) >= 0 ?
+0x33b: 75d501000000000000   | 	jge L1
                             | #################################################################
                             | # Do not modify the following section of code
                             | # Function epilogue.
-0x1c0:                      | Done:
-0x1c0: 90                   | 	ret
+0x344:                      | Done:
+0x344: 90                   | 	ret
                             | ##################################################################
                             | # Keep the following label at the end of your function
-0x1c1:                      | End:
+0x345:                      | End:
                             | #/* $end ncopy-ys */
