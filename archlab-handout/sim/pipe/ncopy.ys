@@ -7,7 +7,9 @@
 # 2017-12735 Baek Dong Jin
 #
 # Describe how and why you modified the baseline code.
-#
+# 1. irmovq + addq --> iaddq
+# 2. handle load/use hazard by inserting instruction between copying data
+# 3. loop unrolling with k = 8
 ##################################################################
 # Do not modify this portion
 # Function prologue.

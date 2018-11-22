@@ -20,7 +20,9 @@ StartFun:
 # 2017-12735 Baek Dong Jin
 #
 # Describe how and why you modified the baseline code.
-#
+# 1. irmovq + addq --> iaddq
+# 2. handle load/use hazard by inserting instruction between copying data
+# 3. loop unrolling with k = 8
 ##################################################################
 # Do not modify this portion
 # Function prologue.
@@ -29,88 +31,9 @@ ncopy:
 
 ##################################################################
 	# Loop header
-	xorq %rax, %rax # count = 0;
-	andq %rdx, %rdx
-	jg Mod2
-	ret
-
-Mod2:
-	irmovq $1, %r9
-	andq %rdx, %r9 # len is Even ?
-	je Mod4_1
-
-	mrmovq (%rdi), %r10 # read val from src
-	iaddq $8, %rdi
-	rmmovq %r10, (%rsi) # store it to dst
-	iaddq $8, %rsi
-
-	iaddq $-1, %rdx
-	jne Mod2_1
-	ret
-Mod2_1:
-	andq %r10, %r10
-	jle Mod4_1
-	iaddq $1, %rax
-
-Mod4_1:
-	irmovq $2, %r9
-	andq %rdx, %r9 # len is 0, 1 mod 4 ?
-	je Mod8_1
-
-	mrmovq (%rdi), %r10 # read val from src
-	mrmovq $8(%rdi), %r9 # read val from src
-	rmmovq %r10, (%rsi) # store it to dst
-	rmmovq %r9, $8(%rsi) # store it to dst
-
-	andq %r10, %r10
-	jle Mod4_2
-	iaddq $1, %rax
-Mod4_2:
-	iaddq $16, %rdi
-	iaddq $16, %rsi
-	iaddq $-2, %rdx
-	jne Mod4_3
-	ret
-Mod4_3:
-	andq %r9, %r9
-	jle Mod8_1
-	iaddq $1, %rax
-
-Mod8_1:
-	irmovq $4, %r9
-	andq %rdx, %r9 # len is 0, 1, 2, 3 mod 8
-	je Test
-
-	mrmovq (%rdi), %r10
-	mrmovq $8(%rdi), %r9
-	rmmovq %r10, (%rsi)
-	rmmovq %r9, $8(%rsi)
-
-	andq %r10, %r10
-	jle Mod8_2
-	iaddq $1, %rax
-Mod8_2:
-	andq %r9, %r9
-	jle Mod8_3
-	iaddq $1, %rax
-Mod8_3:
-	mrmovq $16(%rdi), %r10
-	mrmovq $24(%rdi), %r9
-	rmmovq %r10, $16(%rsi)
-	rmmovq %r9, $24(%rsi)
-
-	andq %r10, %r10
-	jle Mod8_4
-	iaddq $1, %rax
-Mod8_4:
-	iaddq $32, %rdi
-	iaddq $32, %rsi
-	iaddq $-4, %rdx
-	andq %r9, %r9
-	jle Test
-	iaddq $1, %rax
-	jne Test
-	ret
+	xorq %rax, %rax
+	iaddq $-8, %rdx
+	jl Has4_Small
 
 
 L1:
@@ -165,12 +88,87 @@ L8:
 	iaddq $64, %rdi
 	iaddq $64, %rsi
 	andq %r9, %r9
-	jle Test
+	jle Test 
 	iaddq $1, %rax
-
 Test:
 	iaddq $-8, %rdx # (len-8) >= 0 ?
 	jge L1
+
+Has4_Small:
+	iaddq $8, %rdx
+
+Has4:
+	iaddq $-4, %rdx
+	jl Has2_Small
+
+	mrmovq (%rdi), %r10
+	mrmovq $8(%rdi), %r9
+	rmmovq %r10, (%rsi)
+	rmmovq %r9, $8(%rsi)
+
+	andq %r10, %r10
+	jle S1
+	iaddq $1, %rax
+S1:
+	andq %r9, %r9
+	jle S2
+	iaddq $1, %rax
+S2:
+	mrmovq $16(%rdi), %r10
+	mrmovq $24(%rdi), %r9
+	rmmovq %r10, $16(%rsi)
+	rmmovq %r9, $24(%rsi)
+
+	andq %r10, %r10
+	jle S3
+	iaddq $1, %rax
+S3:
+	iaddq $32, %rdi
+	iaddq $32, %rsi
+	andq %r9, %r9
+	jle Has2
+	iaddq $1, %rax
+	jmp Has2
+
+Has2_Small:
+	iaddq $4, %rdx
+Has2:
+	iaddq $-2, %rdx
+	jl Has1_Small
+
+	mrmovq (%rdi), %r10 # read val from src
+	mrmovq $8(%rdi), %r9 # read val from src
+	rmmovq %r10, (%rsi) # store it to dst
+	rmmovq %r9, $8(%rsi) # store it to dst
+
+	andq %r10, %r10
+	jle S4
+	iaddq $1, %rax
+S4:
+	iaddq $16, %rdi
+	iaddq $16, %rsi
+
+	andq %r9, %r9
+	jle Has1
+	iaddq $1, %rax
+	jmp Has1
+	
+Has1_Small:
+	iaddq $2, %rdx
+
+Has1:
+	iaddq $-1, %rdx
+	jl Done
+
+	mrmovq (%rdi), %r10 # read val from src
+	rmmovq %r10, (%rsi) # store it to dst
+
+	andq %r10, %r10
+	jle Done
+	iaddq $1, %rax
+
+
+
 #################################################################
 # Do not modify the following section of code
 # Function epilogue.
@@ -189,8 +187,8 @@ EndFun:
 src:
 	.quad -1
 	.quad 2
-	.quad 3
-	.quad -4
+	.quad -3
+	.quad 4
 	.quad 0xbcdefa # This shouldn't get moved
 
 	.align 16
