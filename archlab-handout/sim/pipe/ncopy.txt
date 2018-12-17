@@ -1,0 +1,165 @@
+#/* $begin ncopy-ys */
+##################################################################
+# ncopy.ys - Copy a src block of len words to dst.
+# Return the number of positive words (>0) contained in src.
+#
+# Include your name and ID here.
+# 2017-12735 Baek Dong Jin
+#
+# Describe how and why you modified the baseline code.
+#
+##################################################################
+# Do not modify this portion
+# Function prologue.
+# %rdi = src, %rsi = dst, %rdx = len
+ncopy:
+
+##################################################################
+	# Loop header
+	xorq %rax, %rax
+	iaddq $-8, %rdx
+	jl Has4_Small
+
+
+L1:
+	mrmovq (%rdi), %r10 # read val from src
+	mrmovq $8(%rdi), %r9 # read val from src
+	rmmovq %r10, (%rsi) # store it to dst
+	rmmovq %r9, $8(%rsi) # store it to dst
+
+	andq %r10, %r10
+	jle L2 
+	iaddq $1, %rax
+L2:
+	andq %r9, %r9
+	jle L3
+	iaddq $1, %rax
+L3:
+	mrmovq $16(%rdi), %r10 # read val from src
+	mrmovq $24(%rdi), %r9 # read val from src
+	rmmovq %r10, $16(%rsi) # store it to dst
+	rmmovq %r9, $24(%rsi) # store it to dst
+
+	andq %r10, %r10
+	jle L4 
+	iaddq $1, %rax
+L4:
+	andq %r9, %r9
+	jle L5
+	iaddq $1, %rax
+L5:
+	mrmovq $32(%rdi), %r10 # read val from src
+	mrmovq $40(%rdi), %r9 # read val from src
+	rmmovq %r10, $32(%rsi) # store it to dst
+	rmmovq %r9, $40(%rsi) # store it to dst
+
+	andq %r10, %r10
+	jle L6 
+	iaddq $1, %rax
+L6:
+	andq %r9, %r9
+	jle L7
+	iaddq $1, %rax
+L7:
+	mrmovq $48(%rdi), %r10 # read val from src
+	mrmovq $56(%rdi), %r9 # read val from src
+	rmmovq %r10, $48(%rsi) # store it to dst
+	rmmovq %r9, $56(%rsi) # store it to dst
+
+	andq %r10, %r10
+	jle L8 
+	iaddq $1, %rax
+L8:
+	iaddq $64, %rdi
+	iaddq $64, %rsi
+	andq %r9, %r9
+	jle Test 
+	iaddq $1, %rax
+Test:
+	iaddq $-8, %rdx # (len-8) >= 0 ?
+	jge L1
+
+Has4_Small:
+	iaddq $8, %rdx
+
+Has4:
+	iaddq $-4, %rdx
+	jl Has2_Small
+
+	mrmovq (%rdi), %r10
+	mrmovq $8(%rdi), %r9
+	rmmovq %r10, (%rsi)
+	rmmovq %r9, $8(%rsi)
+
+	andq %r10, %r10
+	jle S1
+	iaddq $1, %rax
+S1:
+	andq %r9, %r9
+	jle S2
+	iaddq $1, %rax
+S2:
+	mrmovq $16(%rdi), %r10
+	mrmovq $24(%rdi), %r9
+	rmmovq %r10, $16(%rsi)
+	rmmovq %r9, $24(%rsi)
+
+	andq %r10, %r10
+	jle S3
+	iaddq $1, %rax
+S3:
+	iaddq $32, %rdi
+	iaddq $32, %rsi
+	andq %r9, %r9
+	jle Has2
+	iaddq $1, %rax
+	jmp Has2
+
+Has2_Small:
+	iaddq $4, %rdx
+Has2:
+	iaddq $-2, %rdx
+	jl Has1_Small
+
+	mrmovq (%rdi), %r10 # read val from src
+	mrmovq $8(%rdi), %r9 # read val from src
+	rmmovq %r10, (%rsi) # store it to dst
+	rmmovq %r9, $8(%rsi) # store it to dst
+
+	andq %r10, %r10
+	jle S4
+	iaddq $1, %rax
+S4:
+	iaddq $16, %rdi
+	iaddq $16, %rsi
+
+	andq %r9, %r9
+	jle Has1
+	iaddq $1, %rax
+	jmp Has1
+	
+Has1_Small:
+	iaddq $2, %rdx
+
+Has1:
+	iaddq $-1, %rdx
+	jl Done
+
+	mrmovq (%rdi), %r10 # read val from src
+	rmmovq %r10, (%rsi) # store it to dst
+
+	andq %r10, %r10
+	jle Done
+	iaddq $1, %rax
+
+
+
+#################################################################
+# Do not modify the following section of code
+# Function epilogue.
+Done:
+	ret
+##################################################################
+# Keep the following label at the end of your function
+End:
+#/* $end ncopy-ys */
